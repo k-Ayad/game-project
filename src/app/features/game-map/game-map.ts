@@ -136,7 +136,7 @@ export class GameMap implements OnInit, OnDestroy {
   }
 
   private handleMovement(key: string): void {
-    const speed = 1.5;
+    const speed = 0.8; // Reduced speed for more accuracy
     switch (key) {
       case 'w':
       case 'arrowup':
@@ -185,8 +185,8 @@ export class GameMap implements OnInit, OnDestroy {
       this.joystickX = Math.cos(angle) * clampedDistance;
       this.joystickY = Math.sin(angle) * clampedDistance;
       
-      // Move character based on joystick
-      const speed = 2;
+      // Move character based on joystick - reduced speed for touch
+      const speed = 1.2;
       const normalizedX = this.joystickX / maxDistance;
       const normalizedY = this.joystickY / maxDistance;
       
@@ -235,12 +235,19 @@ export class GameMap implements OnInit, OnDestroy {
 
   getCharacterRotation(): string {
     if (!this.character) return 'rotate(0deg)';
+    // Fixed rotation - character always faces forward (head up)
+    // Only flip horizontally for left/right movement
     switch (this.character.direction) {
-      case 'up': return 'rotate(0deg) scaleY(-1)';
-      case 'down': return 'rotate(0deg)';
-      case 'left': return 'rotate(0deg) scaleX(-1)';
-      case 'right': return 'rotate(0deg)';
-      default: return 'rotate(0deg)';
+      case 'up': 
+        return 'rotate(0deg)'; // Head up, normal
+      case 'down': 
+        return 'rotate(0deg)'; // Head up, normal (no flip)
+      case 'left': 
+        return 'scaleX(-1)'; // Flip horizontally for left
+      case 'right': 
+        return 'scaleX(1)'; // Normal for right
+      default: 
+        return 'rotate(0deg)';
     }
   }
 

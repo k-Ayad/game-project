@@ -36,6 +36,29 @@
       repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0px, transparent 1px, transparent 40px);
     pointer-events: none;
   }
+
+  // Visual paths/roads for the character to walk on
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      // Horizontal path (top)
+      linear-gradient(90deg, rgba(139, 90, 43, 0.3) 10%, rgba(139, 90, 43, 0.3) 90%) 0% 15% / 100% 10%,
+      // Vertical path (left)
+      linear-gradient(0deg, rgba(139, 90, 43, 0.3) 15%, rgba(139, 90, 43, 0.3) 85%) 10% 0% / 20% 100%,
+      // Horizontal path (bottom)
+      linear-gradient(90deg, rgba(139, 90, 43, 0.3) 10%, rgba(139, 90, 43, 0.3) 90%) 0% 65% / 100% 20%,
+      // Vertical path (right)
+      linear-gradient(0deg, rgba(139, 90, 43, 0.3) 15%, rgba(139, 90, 43, 0.3) 85%) 65% 0% / 25% 100%,
+      // Center crossroad
+      linear-gradient(0deg, rgba(139, 90, 43, 0.3) 40%, rgba(139, 90, 43, 0.3) 60%) 30% 0% / 35% 100%;
+    background-repeat: no-repeat;
+    pointer-events: none;
+  }
 }
 
 .place {
@@ -111,7 +134,7 @@
   transform: translate(-50%, -50%);
   font-size: clamp(2.5rem, 10vw, 4rem);
   z-index: 10;
-  transition: transform 0.1s linear;
+  transition: left 0.05s linear, top 0.05s linear; // Smooth but accurate movement
   filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
   pointer-events: none;
   

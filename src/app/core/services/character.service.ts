@@ -17,12 +17,27 @@ export class CharacterService {
 
   public character$: Observable<Character> = this.characterSubject.asObservable();
 
+  // Define walkable paths - these are the areas where the character can move
+  private walkablePaths = [
+    // Horizontal path (top area)
+    { x1: 10, y1: 15, x2: 90, y2: 25 },
+    // Vertical path (left side)
+    { x1: 10, y1: 15, x2: 30, y2: 85 },
+    // Horizontal path (bottom area)
+    { x1: 10, y1: 65, x2: 90, y2: 85 },
+    // Vertical path (right side)
+    { x1: 65, y1: 15, x2: 90, y2: 85 },
+    // Center crossroad
+    { x1: 30, y1: 40, x2: 65, y2: 60 }
+  ];
+
   constructor() {}
 
-  moveCharacter(direction: 'up' | 'down' | 'left' | 'right', speed: number = 2): void {
+  moveCharacter(direction: 'up' | 'down' | 'left' | 'right', speed: number = 0.8): void {
     const character = this.characterSubject.value;
     const newPosition = { ...character.position };
 
+    // Calculate new position
     switch (direction) {
       case 'up':
         newPosition.y = Math.max(0, newPosition.y - speed);
@@ -38,11 +53,31 @@ export class CharacterService {
         break;
     }
 
-    this.characterSubject.next({
-      ...character,
-      position: newPosition,
-      direction,
-      isMoving: true
+    // Check if new position is within walkable paths
+    if (this.isPositionWalkable(newPosition)) {
+      this.characterSubject.next({
+        ...character,
+        position: newPosition,
+        direction,
+        isMoving: true
+      });
+    } else {
+      // Position not walkable, keep current position but update direction
+      this.characterSubject.next({
+        ...character,
+        direction,
+        isMoving: false
+      });
+    }
+  }
+
+  private isPositionWalkable(position: Position): boolean {
+    // Check if position is within any of the walkable paths
+    return this.walkablePaths.some(path => {
+      return position.x >= path.x1 && 
+             position.x <= path.x2 && 
+             position.y >= path.y1 && 
+             position.y <= path.y2;
     });
   }
 
@@ -56,10 +91,13 @@ export class CharacterService {
 
   setPosition(position: Position): void {
     const character = this.characterSubject.value;
-    this.characterSubject.next({
-      ...character,
-      position
-    });
+    // Only set position if it's walkable
+    if (this.isPositionWalkable(position)) {
+      this.characterSubject.next({
+        ...character,
+        position
+      });
+    }
   }
 
   getCharacter(): Character {
@@ -75,5 +113,10 @@ export class CharacterService {
       position.y + characterRadius > targetPosition.y &&
       position.y - characterRadius < targetPosition.y + targetSize.height
     );
+  }
+
+  // Helper method to get walkable paths (useful for debugging or drawing paths)
+  getWalkablePaths() {
+    return this.walkablePaths;
   }
 }
