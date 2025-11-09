@@ -1,0 +1,62 @@
+<div class="game-container" 
+     (touchstart)="onTouchStart($event)"
+     (touchmove)="onTouchMove($event)"
+     (touchend)="onTouchEnd($event)">
+  
+  <!-- Game Map -->
+  <div class="game-map">
+    
+    <!-- Background/Terrain -->
+    <div class="terrain"></div>
+    
+    <!-- Places (4 interactive locations) -->
+    <div *ngFor="let place of places" 
+         class="place"
+         [class.completed]="place.isCompleted"
+         [style.left.%]="place.position.x"
+         [style.top.%]="place.position.y"
+         [style.width.%]="place.width"
+         [style.height.%]="place.height">
+      <div class="place-icon">{{ place.iconUrl }}</div>
+      <div class="place-name">{{ place.name }}</div>
+      <div class="completion-badge" *ngIf="place.isCompleted">✓</div>
+    </div>
+    
+    <!-- Character -->
+    <div *ngIf="character" 
+         class="character"
+         [class.moving]="character.isMoving"
+         [style.left.%]="character.position.x"
+         [style.top.%]="character.position.y"
+         [style.transform]="getCharacterRotation()">
+      {{ character.sprite }}
+    </div>
+  </div>
+  
+  <!-- Mobile Touch Controls Overlay -->
+  <div class="controls-overlay" *ngIf="isTouching">
+    <div class="joystick-base" 
+         [style.left.px]="touchStartX - 40"
+         [style.top.px]="touchStartY - 40">
+      <div class="joystick-stick"
+           [style.transform]="'translate(' + joystickX + 'px, ' + joystickY + 'px)'">
+      </div>
+    </div>
+  </div>
+  
+  <!-- Instructions -->
+  <div class="instructions">
+    <div class="desktop-instructions">
+      🎮 Use WASD or Arrow Keys to move
+    </div>
+    <div class="mobile-instructions">
+      📱 Touch and drag to move your character
+    </div>
+  </div>
+  
+  <!-- Progress Indicator -->
+  <div class="progress-indicator">
+    Progress: {{ getCompletedCount() }}/{{ places.length }}
+  </div>
+</div>
+
