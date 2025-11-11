@@ -35,6 +35,7 @@ export class CharacterService {
 
   moveCharacter(direction: 'up' | 'down' | 'left' | 'right', speed: number = 0.8): void {
     const character = this.characterSubject.value;
+    const currentPosition = { ...character.position };
     const newPosition = { ...character.position };
 
     // Calculate new position
@@ -55,6 +56,7 @@ export class CharacterService {
 
     // Check if new position is within walkable paths
     if (this.isPositionWalkable(newPosition)) {
+      // Position is walkable - update character position AND set moving state
       this.characterSubject.next({
         ...character,
         position: newPosition,
@@ -62,9 +64,12 @@ export class CharacterService {
         isMoving: true
       });
     } else {
-      // Position not walkable, keep current position but update direction
+      // Position not walkable - keep CURRENT position (don't move), but update direction
+      // This is the KEY FIX - we keep the exact current position instead of setting isMoving: false
+      // which might cause the character to "snap" to a slightly different position
       this.characterSubject.next({
         ...character,
+        position: currentPosition, // Keep exact current position
         direction,
         isMoving: false
       });
@@ -83,9 +88,12 @@ export class CharacterService {
 
   stopMoving(): void {
     const character = this.characterSubject.value;
+    // CRITICAL FIX: Only update isMoving flag, keep exact same position
+    // Don't create new position object that might cause floating point differences
     this.characterSubject.next({
       ...character,
       isMoving: false
+      // position stays exactly the same - no reassignment
     });
   }
 

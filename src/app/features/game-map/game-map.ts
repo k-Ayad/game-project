@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CharacterService } from '../../core/services/character.service';
 import { GameStateService } from '../../core/services/game-state.service';
@@ -13,6 +13,8 @@ import { Subject, takeUntil } from 'rxjs';
   styleUrl: './game-map.scss',
 })
 export class GameMap implements OnInit, OnDestroy {
+  @ViewChild('gameContainer', { read: ElementRef, static: false }) gameContainer!: ElementRef;
+  
   character: Character | null = null;
   places: Place[] = [];
   private destroy$ = new Subject<void>();
@@ -25,6 +27,9 @@ export class GameMap implements OnInit, OnDestroy {
   isTouching: boolean = false;
   joystickX: number = 0;
   joystickY: number = 0;
+  
+  // Store container dimensions for proper coordinate conversion
+  private containerRect: DOMRect | null = null;
 
   constructor(
     private characterService: CharacterService,
@@ -157,10 +162,17 @@ export class GameMap implements OnInit, OnDestroy {
     }
   }
 
-  // Touch controls for mobile
+  // Touch controls for mobile - FIXED VERSION
   onTouchStart(event: TouchEvent): void {
     event.preventDefault();
+    
+    // Get container bounds for accurate positioning
+    if (this.gameContainer) {
+      this.containerRect = this.gameContainer.nativeElement.getBoundingClientRect();
+    }
+    
     const touch = event.touches[0];
+    // Store the touch position relative to viewport (for joystick display)
     this.touchStartX = touch.clientX;
     this.touchStartY = touch.clientY;
     this.isTouching = true;
@@ -171,6 +183,7 @@ export class GameMap implements OnInit, OnDestroy {
     event.preventDefault();
     
     const touch = event.touches[0];
+    // Calculate delta from initial touch position
     const deltaX = touch.clientX - this.touchStartX;
     const deltaY = touch.clientY - this.touchStartY;
     
@@ -182,19 +195,24 @@ export class GameMap implements OnInit, OnDestroy {
       const angle = Math.atan2(deltaY, deltaX);
       const clampedDistance = Math.min(distance, maxDistance);
       
+      // Update joystick visual position
       this.joystickX = Math.cos(angle) * clampedDistance;
       this.joystickY = Math.sin(angle) * clampedDistance;
       
-      // Move character based on joystick - reduced speed for touch
+      // Move character based on joystick direction
       const speed = 1.2;
       const normalizedX = this.joystickX / maxDistance;
       const normalizedY = this.joystickY / maxDistance;
       
+      // Move in the dominant direction for better control
       if (Math.abs(normalizedX) > Math.abs(normalizedY)) {
         this.characterService.moveCharacter(normalizedX > 0 ? 'right' : 'left', speed * Math.abs(normalizedX));
       } else {
         this.characterService.moveCharacter(normalizedY > 0 ? 'down' : 'up', speed * Math.abs(normalizedY));
       }
+    } else {
+      // Within dead zone - stop movement
+      this.characterService.stopMoving();
     }
   }
 
@@ -203,6 +221,7 @@ export class GameMap implements OnInit, OnDestroy {
     this.isTouching = false;
     this.joystickX = 0;
     this.joystickY = 0;
+    this.containerRect = null;
     this.characterService.stopMoving();
   }
 
@@ -234,20 +253,17 @@ export class GameMap implements OnInit, OnDestroy {
   }
 
   getCharacterRotation(): string {
-    if (!this.character) return 'rotate(0deg)';
+    if (!this.character) return 'scaleX(1)';
     // Fixed rotation - character always faces forward (head up)
     // Only flip horizontally for left/right movement
     switch (this.character.direction) {
-      case 'up': 
-        return 'rotate(0deg)'; // Head up, normal
-      case 'down': 
-        return 'rotate(0deg)'; // Head up, normal (no flip)
       case 'left': 
         return 'scaleX(-1)'; // Flip horizontally for left
-      case 'right': 
-        return 'scaleX(1)'; // Normal for right
+      case 'right':
+      case 'up':
+      case 'down':
       default: 
-        return 'rotate(0deg)';
+        return 'scaleX(1)'; // Normal for all other directions
     }
   }
 

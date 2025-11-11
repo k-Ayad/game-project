@@ -131,7 +131,7 @@
 
 .character {
   position: absolute;
-  transform: translate(-50%, -50%);
+  // transform: translate(-50%, -50%);
   font-size: clamp(2.5rem, 10vw, 4rem);
   z-index: 10;
   transition: left 0.05s linear, top 0.05s linear; // Smooth but accurate movement
@@ -144,9 +144,9 @@
 }
 
 @keyframes walk {
-  0% { transform: translate(-50%, -50%) translateY(0); }
-  50% { transform: translate(-50%, -50%) translateY(-3px); }
-  100% { transform: translate(-50%, -50%) translateY(0); }
+  0% { transform:  translateY(0); }
+  50% { transform:  translateY(-3px); }
+  100% { transform:  translateY(0); }
 }
 
 .controls-overlay {
