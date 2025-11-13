@@ -1,0 +1,24 @@
+<div class="viewport" #viewport>
+  <div class="map-container" 
+       #mapContainer
+       (click)="onMapClick($event)"
+       [style.transform]="getCameraTransform()">
+    
+    <img src="assets/map.png" alt="Game Map" class="map-background" draggable="false">
+
+    <div *ngFor="let node of pathNodes; let i = index" 
+         class="path-node"
+         [style.left.px]="node.x"
+         [style.top.px]="node.y">
+    </div>
+
+    <div *ngIf="character" 
+         class="character"
+         [class.moving]="character.isMoving"
+         [style.left.px]="character.position.x"
+         [style.top.px]="character.position.y"
+         [style.transform]="getCharacterTransform()">
+      {{ character.sprite }}
+    </div>
+  </div>
+</div>

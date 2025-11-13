@@ -1,10 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { GameMap } from './features/game-map/game-map';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, GameMap],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

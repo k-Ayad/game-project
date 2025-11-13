@@ -1,0 +1,71 @@
+.viewport {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background: #87CEEB;
+}
+
+.map-container {
+  position: relative;
+  width: 1360px;
+  height: 768px;
+  cursor: pointer;
+  transition: transform 0.05s linear;
+  will-change: transform;
+}
+
+.map-background {
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+
+.path-node {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 0, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1;
+  display: none;
+}
+
+.character {
+  position: absolute;
+  font-size: 3rem;
+  z-index: 10;
+  transition: none;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+  pointer-events: none;
+  transform-origin: center center;
+  
+  &.moving {
+    animation: walk 0.4s steps(2) infinite;
+  }
+}
+
+@keyframes walk {
+  0%, 100% { transform: translate(-50%, -50%) scaleX(var(--flip, 1)); }
+  50% { transform: translate(-50%, calc(-50% - 3px)) scaleX(var(--flip, 1)); }
+}
+
+@media (min-width: 768px) {
+  .map-container {
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .viewport {
+    touch-action: none;
+  }
+  
+  .character {
+    font-size: 2.5rem;
+  }
+}
